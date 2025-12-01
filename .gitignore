@@ -56,3 +56,5 @@ backend/static/
 # Temporary files
 tmp/
 temp/
+backups/
+backend/backups/

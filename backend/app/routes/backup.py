@@ -4,6 +4,7 @@ Backup API Routes für die Feuerwehr Anwesenheits-App
 
 import os
 import shutil
+import tempfile
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from fastapi.responses import FileResponse
@@ -237,8 +238,8 @@ async def restore_backup(
             detail="Nur ZIP-Dateien sind erlaubt"
         )
     
-    # Speichere hochgeladene Datei temporär
-    temp_path = f"/tmp/restore_{file.filename}"
+    # Speichere hochgeladene Datei temporär (cross-platform)
+    temp_path = os.path.join(tempfile.gettempdir(), f"restore_{file.filename}")
     try:
         with open(temp_path, "wb") as buffer:
             content = await file.read()

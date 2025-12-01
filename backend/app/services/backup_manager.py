@@ -5,6 +5,7 @@ Verwaltet Backup-Erstellung, -Wiederherstellung und -Verwaltung
 
 import os
 import shutil
+import tempfile
 import zipfile
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -284,14 +285,16 @@ class BackupManager:
             if not os.path.exists(backup_filepath):
                 return False, "Backup-Datei nicht gefunden"
             
-            # Erstelle Sicherungs-Backup vor dem Restore
+            # Erstelle Sicherungs-Backup vor dem Restore (im gleichen Backup-Verzeichnis)
             if create_safety_backup:
-                success, msg, _ = BackupManager.create_backup(db, custom_path="./backups/safety/")
+                settings = BackupManager.get_settings(db)
+                safety_path = os.path.join(BackupManager._normalize_path(settings.backup_path), "safety")
+                success, msg, _ = BackupManager.create_backup(db, custom_path=safety_path)
                 if not success:
                     return False, f"Sicherungs-Backup fehlgeschlagen: {msg}"
             
-            # Extrahiere Backup
-            temp_restore_dir = "/tmp/feuerwehr_restore_temp"
+            # Extrahiere Backup in temporäres Verzeichnis (cross-platform)
+            temp_restore_dir = os.path.join(tempfile.gettempdir(), "feuerwehr_restore_temp")
             if os.path.exists(temp_restore_dir):
                 shutil.rmtree(temp_restore_dir)
             os.makedirs(temp_restore_dir)
