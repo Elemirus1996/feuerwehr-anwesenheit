@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import CheckInMain from './components/CheckIn/CheckInMain'
+import CheckInToken from './components/CheckIn/CheckInToken'
 import AdminDashboard from './components/Admin/AdminDashboard'
 import Login from './components/Admin/Login'
 import { useState, useEffect } from 'react'
@@ -28,6 +29,9 @@ function App() {
       <Routes>
         {/* Check-in Interface (Kiosk-Modus) */}
         <Route path="/" element={<CheckInMain />} />
+        
+        {/* QR-Code Check-in */}
+        <Route path="/checkin" element={<CheckInToken />} />
         
         {/* Admin Login */}
         <Route 

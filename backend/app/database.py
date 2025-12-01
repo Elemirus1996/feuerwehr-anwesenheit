@@ -107,11 +107,11 @@ def create_demo_data():
             {"stammrollennummer": "001", "vorname": "Max", "nachname": "Mustermann", "dienstgrad": "FM"},
             {"stammrollennummer": "002", "vorname": "Anna", "nachname": "Schmidt", "dienstgrad": "OFM"},
             {"stammrollennummer": "003", "vorname": "Thomas", "nachname": "Müller", "dienstgrad": "HFM"},
-            {"stammrollennummer": "004", "vorname": "Lisa", "nachname": "Weber", "dienstgrad": "LM"},
-            {"stammrollennummer": "005", "vorname": "Michael", "nachname": "Fischer", "dienstgrad": "OLM"},
-            {"stammrollennummer": "006", "vorname": "Sarah", "nachname": "Wagner", "dienstgrad": "HLM"},
-            {"stammrollennummer": "007", "vorname": "Peter", "nachname": "Becker", "dienstgrad": "BM"},
-            {"stammrollennummer": "008", "vorname": "Julia", "nachname": "Hoffmann", "dienstgrad": "OBM"},
+            {"stammrollennummer": "004", "vorname": "Lisa", "nachname": "Weber", "dienstgrad": "UBM"},
+            {"stammrollennummer": "005", "vorname": "Michael", "nachname": "Fischer", "dienstgrad": "BM"},
+            {"stammrollennummer": "006", "vorname": "Sarah", "nachname": "Wagner", "dienstgrad": "OBM"},
+            {"stammrollennummer": "007", "vorname": "Peter", "nachname": "Becker", "dienstgrad": "HBM"},
+            {"stammrollennummer": "008", "vorname": "Julia", "nachname": "Hoffmann", "dienstgrad": "BI"},
             {"stammrollennummer": "009", "vorname": "Stefan", "nachname": "Schneider", "dienstgrad": "UBM"},
             {"stammrollennummer": "010", "vorname": "Markus", "nachname": "Koch", "dienstgrad": "BI"},
         ]
@@ -132,6 +132,17 @@ def create_demo_data():
                 role_id=admin_role.id if admin_role else None
             )
             db.add(admin_user)
+
+        # Feuerwehr-Daten initialisieren
+        fire_station = db.query(FireStation).first()
+        if not fire_station:
+            fire_station = FireStation(
+                name="Freiwillige Feuerwehr",
+                city="Musterstadt",
+                postal_code="12345"
+            )
+            db.add(fire_station)
+            print("Standard Feuerwehr-Daten erstellt")
 
         db.commit()
         print(f"Demo-Daten erstellt: {len(demo_personnel)} Mitarbeiter und 1 Admin-Benutzer")

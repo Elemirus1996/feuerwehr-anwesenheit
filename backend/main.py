@@ -129,6 +129,7 @@ app.include_router(sessions.router)
 app.include_router(attendance.router)
 app.include_router(admin.router)
 app.include_router(export.router)
+app.include_router(settings.router)
 
 # Feature 12: Personalisierung
 app.include_router(preferences.router)

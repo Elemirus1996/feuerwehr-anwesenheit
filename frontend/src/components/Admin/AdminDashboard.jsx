@@ -99,6 +99,13 @@ function AdminDashboard({ onLogout }) {
               <div className="font-semibold">📋 Anwesenheitslisten</div>
               <div className="text-sm text-gray-500">Sessions und Berichte</div>
             </NavLink>
+            <NavLink
+              to="/admin/settings"
+              className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <div className="font-semibold">⚙️ Einstellungen</div>
+              <div className="text-sm text-gray-500">Feuerwehr-Daten & Logo</div>
+            </NavLink>
             <a
               href="/"
               className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"

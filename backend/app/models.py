@@ -81,23 +81,15 @@ DIENSTGRADE = {
     "FM": ("Feuerwehrmann", 1),
     "OFM": ("Oberfeuerwehrmann", 2),
     "HFM": ("Hauptfeuerwehrmann", 3),
-    "LM": ("Löschmeister", 4),
-    "OLM": ("Oberlöschmeister", 5),
-    "HLM": ("Hauptlöschmeister", 6),
-    "BM": ("Brandmeister", 7),
-    "OBM": ("Oberbrandmeister", 8),
-    "HBM": ("Hauptbrandmeister", 9),
-    "UBM": ("Unterbrandmeister", 10),
-    "BI": ("Brandinspektor", 11),
-    "OBI": ("Oberbrandinspektor", 12),
-    "HBI": ("Hauptbrandinspektor", 13),
-    "BR": ("Brandrat", 14),
-    "OBR": ("Oberbrandrat", 15),
-    "BD": ("Branddirektor", 16),
+    "UBM": ("Unterbrandmeister", 4),
+    "BM": ("Brandmeister", 5),
+    "OBM": ("Oberbrandmeister", 6),
+    "HBM": ("Hauptbrandmeister", 7),
+    "BI": ("Brandinspektor", 8),
 }
 
 # Mindestrang für das Beenden einer Einsatz-Session
-MIN_RANG_EINSATZ_BEENDEN = 10  # UBM
+MIN_RANG_EINSATZ_BEENDEN = 4  # UBM
 
 
 class Personnel(Base):
@@ -139,6 +131,7 @@ class Session(Base):
     end_time = Column(DateTime, nullable=True)
     status = Column(SQLEnum(SessionStatus), default=SessionStatus.ACTIVE, nullable=False)
     ended_by_stammrollennummer = Column(String(50), nullable=True)
+    qr_token = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Relationship zu Attendance

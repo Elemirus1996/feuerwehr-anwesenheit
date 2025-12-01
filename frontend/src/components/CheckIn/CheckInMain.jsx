@@ -212,6 +212,28 @@ function CheckInMain() {
             sessionInfo={activeSession}
           />
         </div>
+
+        {/* QR-Code für mobile Check-in */}
+        <div className="card mt-4">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <div className="text-center">
+              <div className="border rounded-lg overflow-hidden bg-white p-2 inline-block">
+                <img
+                  src={`/api/sessions/${activeSession.id}/qr?t=${Date.now()}`}
+                  alt="QR-Code zum Check-in"
+                  className="w-32 h-32 object-contain"
+                />
+              </div>
+            </div>
+            <div className="text-center md:text-left">
+              <h3 className="font-semibold text-gray-800">Mobile Check-in</h3>
+              <p className="text-sm text-gray-600">
+                Scanne den QR-Code mit deinem Smartphone<br />
+                für einen schnellen Check-in
+              </p>
+            </div>
+          </div>
+        </div>
       </main>
 
       {/* Footer */}
