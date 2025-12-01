@@ -1,0 +1,66 @@
+# =============================================================================
+# Feuerwehr Anwesenheits-App - Docker Compose Konfiguration
+# =============================================================================
+# Einfache Deployment-Lösung für die Anwendung
+# 
+# WICHTIG: Vor dem Start eine .env Datei erstellen mit:
+#   SECRET_KEY=<your-random-secret-key>
+# 
+# Generieren Sie einen sicheren Schlüssel mit:
+#   openssl rand -hex 32
+# =============================================================================
+
+version: '3.8'
+
+services:
+  feuerwehr-anwesenheit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: feuerwehr-anwesenheit
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Datenbank-Persistenz
+      - feuerwehr_data:/app/data
+    environment:
+      # Server-Konfiguration
+      - HOST=0.0.0.0
+      - PORT=8000
+      
+      # Datenbank
+      - DATABASE_PATH=/app/data/feuerwehr_anwesenheit.db
+      
+      # Feuerwache-Name (wird in PDFs angezeigt)
+      - FEUERWACHE_NAME=Freiwillige Feuerwehr Musterstadt
+      
+      # Session-Timeouts
+      - AUTO_TIMEOUT_HOURS=3
+      - SESSION_CHECK_INTERVAL=60
+      
+      # Authentifizierung - SECRET_KEY aus .env Datei oder Umgebung
+      - SECRET_KEY=${SECRET_KEY:-}
+      - TOKEN_EXPIRE_MINUTES=480
+      
+      # Demo-Daten (auf false setzen nach erstem Start)
+      - CREATE_DEMO_DATA=true
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Health Check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  feuerwehr_data:
+    name: feuerwehr_anwesenheit_data

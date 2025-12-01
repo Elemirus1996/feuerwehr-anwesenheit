@@ -1,0 +1,47 @@
+[Unit]
+Description=Feuerwehr Anwesenheits-App
+Documentation=https://github.com/your-repo/feuerwehr-anwesenheit
+After=network.target
+
+[Service]
+Type=simple
+User=feuerwehr
+Group=feuerwehr
+WorkingDirectory=/opt/feuerwehr-anwesenheit/backend
+
+# Environment
+Environment="PATH=/opt/feuerwehr-anwesenheit/backend/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="DATABASE_PATH=/opt/feuerwehr-anwesenheit/data/feuerwehr_anwesenheit.db"
+Environment="CREATE_DEMO_DATA=true"
+Environment="HOST=0.0.0.0"
+Environment="PORT=8000"
+Environment="FEUERWACHE_NAME=Freiwillige Feuerwehr Musterstadt"
+Environment="AUTO_TIMEOUT_HOURS=3"
+Environment="SESSION_CHECK_INTERVAL=60"
+
+# Load SECRET_KEY from environment file if it exists
+EnvironmentFile=-/opt/feuerwehr-anwesenheit/.env
+
+# Daten-Verzeichnis erstellen
+ExecStartPre=/bin/mkdir -p /opt/feuerwehr-anwesenheit/data
+
+# Start-Befehl
+ExecStart=/opt/feuerwehr-anwesenheit/backend/venv/bin/python -m uvicorn main:app --host 0.0.0.0 --port 8000
+
+# Restart-Policy
+Restart=always
+RestartSec=10
+
+# Sicherheit
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/feuerwehr-anwesenheit/data
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=feuerwehr-anwesenheit
+
+[Install]
+WantedBy=multi-user.target

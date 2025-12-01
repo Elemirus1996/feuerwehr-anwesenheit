@@ -1,0 +1,23 @@
+{
+    "server": {
+        "host": "0.0.0.0",
+        "port": 8000
+    },
+    "database": {
+        "path": "/opt/feuerwehr-anwesenheit/data/feuerwehr_anwesenheit.db"
+    },
+    "feuerwache": {
+        "name": "Freiwillige Feuerwehr Musterstadt"
+    },
+    "session": {
+        "auto_timeout_hours": 3,
+        "check_interval_seconds": 60
+    },
+    "auth": {
+        "secret_key": "CHANGE_ME_TO_A_SECURE_RANDOM_STRING",
+        "token_expire_minutes": 480
+    },
+    "demo": {
+        "create_demo_data": true
+    }
+}
