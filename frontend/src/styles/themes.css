@@ -1,0 +1,235 @@
+/* Theme System CSS Variables */
+/* Feature 12: Personalization */
+
+:root {
+  /* Light Theme (Default) */
+  --bg-primary: #f3f4f6;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #e5e7eb;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --border-color: #d1d5db;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  /* Brand Colors */
+  --feuerwehr-red: #cc0000;
+  --feuerwehr-dark-red: #990000;
+  
+  /* Status Colors */
+  --success: #22c55e;
+  --success-light: #dcfce7;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --error: #ef4444;
+  --error-light: #fee2e2;
+  --info: #3b82f6;
+  --info-light: #dbeafe;
+  
+  /* Priority Colors (Announcements) */
+  --priority-low: #6b7280;
+  --priority-normal: #3b82f6;
+  --priority-high: #f59e0b;
+  --priority-urgent: #ef4444;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --bg-primary: #111827;
+  --bg-secondary: #1f2937;
+  --bg-tertiary: #374151;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+  --border-color: #4b5563;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  
+  /* Status Colors (Adjusted for dark mode) */
+  --success-light: #166534;
+  --warning-light: #92400e;
+  --error-light: #991b1b;
+  --info-light: #1e40af;
+}
+
+/* High Contrast Mode */
+[data-high-contrast="true"] {
+  --bg-primary: #000000;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #333333;
+  --text-primary: #ffffff;
+  --text-secondary: #ffffff;
+  --text-muted: #cccccc;
+  --border-color: #ffffff;
+  --feuerwehr-red: #ff0000;
+  --feuerwehr-dark-red: #cc0000;
+}
+
+[data-high-contrast="true"][data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-tertiary: #e5e5e5;
+  --text-primary: #000000;
+  --text-secondary: #000000;
+  --text-muted: #333333;
+  --border-color: #000000;
+}
+
+/* Font Size Variants */
+[data-font-size="normal"] {
+  --font-size-base: 1rem;
+  --font-size-sm: 0.875rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+}
+
+[data-font-size="large"] {
+  --font-size-base: 1.125rem;
+  --font-size-sm: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 1.875rem;
+  --font-size-3xl: 2.25rem;
+}
+
+[data-font-size="extra_large"] {
+  --font-size-base: 1.25rem;
+  --font-size-sm: 1.125rem;
+  --font-size-lg: 1.5rem;
+  --font-size-xl: 1.875rem;
+  --font-size-2xl: 2.25rem;
+  --font-size-3xl: 3rem;
+}
+
+/* Apply theme colors to common elements */
+.themed-bg {
+  background-color: var(--bg-primary);
+}
+
+.themed-bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.themed-text {
+  color: var(--text-primary);
+}
+
+.themed-text-secondary {
+  color: var(--text-secondary);
+}
+
+.themed-border {
+  border-color: var(--border-color);
+}
+
+/* Kiosk-specific styles (extra large touch targets) */
+[data-kiosk-mode="true"] .btn-touch {
+  min-height: 60px;
+  min-width: 60px;
+  padding: 1rem 1.5rem;
+  font-size: var(--font-size-lg);
+}
+
+[data-kiosk-mode="true"] .numpad-btn {
+  width: 80px;
+  height: 80px;
+  font-size: 1.5rem;
+}
+
+[data-kiosk-mode="true"] .input-touch {
+  font-size: var(--font-size-lg);
+  padding: 1rem;
+}
+
+/* Priority badge styles for announcements */
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.priority-low {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.priority-normal {
+  background-color: var(--info-light);
+  color: var(--info);
+}
+
+.priority-high {
+  background-color: var(--warning-light);
+  color: var(--warning);
+}
+
+.priority-urgent {
+  background-color: var(--error-light);
+  color: var(--error);
+}
+
+/* Announcement Banner Animation */
+@keyframes slide-in {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.announcement-banner {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* Auto-rotation for announcements */
+@keyframes fade {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.9; }
+}
+
+.announcement-rotate {
+  animation: fade 5s ease-in-out infinite;
+}
+
+/* Audit log action icons */
+.audit-action-create { color: var(--success); }
+.audit-action-update { color: var(--info); }
+.audit-action-delete { color: var(--error); }
+.audit-action-login { color: var(--info); }
+.audit-action-logout { color: var(--text-muted); }
+
+/* Expiring training warning styles */
+.training-expiring {
+  background-color: var(--warning-light);
+  border-left: 4px solid var(--warning);
+}
+
+.training-expired {
+  background-color: var(--error-light);
+  border-left: 4px solid var(--error);
+}
+
+/* System preference detection for auto theme */
+@media (prefers-color-scheme: dark) {
+  [data-theme="auto"] {
+    --bg-primary: #111827;
+    --bg-secondary: #1f2937;
+    --bg-tertiary: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --border-color: #4b5563;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --success-light: #166534;
+    --warning-light: #92400e;
+    --error-light: #991b1b;
+    --info-light: #1e40af;
+  }
+}
