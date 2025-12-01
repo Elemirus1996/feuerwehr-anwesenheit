@@ -3,6 +3,8 @@ import { Routes, Route, NavLink, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import PersonnelManagement from './PersonnelManagement'
 import SessionList from './SessionList'
+import BackupSettings from './BackupSettings'
+import BackupManager from './BackupManager'
 
 function AdminDashboard({ onLogout }) {
   const [stats, setStats] = useState(null)
@@ -91,6 +93,13 @@ function AdminDashboard({ onLogout }) {
               <div className="font-semibold">📋 Anwesenheitslisten</div>
               <div className="text-sm text-gray-500">Sessions und Berichte</div>
             </NavLink>
+            <NavLink
+              to="/admin/backup"
+              className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <div className="font-semibold">💾 Backup & Restore</div>
+              <div className="text-sm text-gray-500">Datensicherung verwalten</div>
+            </NavLink>
             <a
               href="/"
               className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
@@ -140,6 +149,9 @@ function AdminDashboard({ onLogout }) {
                 <NavLink to="/admin/sessions" className={navLinkClass}>
                   Sessions
                 </NavLink>
+                <NavLink to="/admin/backup" className={navLinkClass}>
+                  Backup
+                </NavLink>
               </nav>
             </div>
             <div className="flex items-center gap-4">
@@ -166,6 +178,9 @@ function AdminDashboard({ onLogout }) {
         <NavLink to="/admin/sessions" className={navLinkClass}>
           Sessions
         </NavLink>
+        <NavLink to="/admin/backup" className={navLinkClass}>
+          Backup
+        </NavLink>
       </nav>
 
       {/* Main Content */}
@@ -174,6 +189,8 @@ function AdminDashboard({ onLogout }) {
           <Route path="/" element={<DashboardOverview />} />
           <Route path="/personnel" element={<PersonnelManagement />} />
           <Route path="/sessions" element={<SessionList />} />
+          <Route path="/backup" element={<BackupSettings />} />
+          <Route path="/backup/list" element={<BackupManager />} />
         </Routes>
       </main>
 

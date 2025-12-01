@@ -47,16 +47,16 @@ def create_demo_data():
             print("Demo-Daten bereits vorhanden - überspringe")
             return
 
-        # Demo-Mitarbeiter erstellen
+        # Demo-Mitarbeiter erstellen (mit korrekter Dienstgrade-Hierarchie)
         demo_personnel = [
             {"stammrollennummer": "001", "vorname": "Max", "nachname": "Mustermann", "dienstgrad": "FM"},
             {"stammrollennummer": "002", "vorname": "Anna", "nachname": "Schmidt", "dienstgrad": "OFM"},
             {"stammrollennummer": "003", "vorname": "Thomas", "nachname": "Müller", "dienstgrad": "HFM"},
-            {"stammrollennummer": "004", "vorname": "Lisa", "nachname": "Weber", "dienstgrad": "LM"},
-            {"stammrollennummer": "005", "vorname": "Michael", "nachname": "Fischer", "dienstgrad": "OLM"},
-            {"stammrollennummer": "006", "vorname": "Sarah", "nachname": "Wagner", "dienstgrad": "HLM"},
-            {"stammrollennummer": "007", "vorname": "Peter", "nachname": "Becker", "dienstgrad": "BM"},
-            {"stammrollennummer": "008", "vorname": "Julia", "nachname": "Hoffmann", "dienstgrad": "OBM"},
+            {"stammrollennummer": "004", "vorname": "Lisa", "nachname": "Weber", "dienstgrad": "UBM"},
+            {"stammrollennummer": "005", "vorname": "Michael", "nachname": "Fischer", "dienstgrad": "BM"},
+            {"stammrollennummer": "006", "vorname": "Sarah", "nachname": "Wagner", "dienstgrad": "OBM"},
+            {"stammrollennummer": "007", "vorname": "Peter", "nachname": "Becker", "dienstgrad": "HBM"},
+            {"stammrollennummer": "008", "vorname": "Julia", "nachname": "Hoffmann", "dienstgrad": "BI"},
             {"stammrollennummer": "009", "vorname": "Stefan", "nachname": "Schneider", "dienstgrad": "UBM"},
             {"stammrollennummer": "010", "vorname": "Markus", "nachname": "Koch", "dienstgrad": "BI"},
         ]
