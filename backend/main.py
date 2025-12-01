@@ -18,12 +18,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from app.database import init_db, create_demo_data, SessionLocal
 from app.services.session_manager import SessionManager
-from app.services.backup_service import BackupService, BackupConfig
-from app.routes import personnel, sessions, attendance, admin, export
-from app.routes import preferences, announcements, groups, trainings, roles, audit, backup
+from app.services.backup_manager import BackupManager
+from app.routes import personnel, sessions, attendance, admin, export, backup
 
 
-# Background Scheduler für Session-Timeouts
+# Background Scheduler für Session-Timeouts und Backups
 scheduler = BackgroundScheduler()
 
 
@@ -40,26 +39,27 @@ def check_session_timeouts():
         db.close()
 
 
-def scheduled_backup():
-    """Background-Job für automatische Backups"""
+def run_scheduled_backup():
+    """Background-Job für geplante automatische Backups"""
+    db = SessionLocal()
     try:
-        config = BackupConfig.get_config()
-        if not config.get("enabled", False):
+        settings = BackupManager.get_settings(db)
+        if not settings.backup_enabled:
             return
         
-        result = BackupService.create_backup()
-        print(f"[Scheduler] Automatisches Backup erstellt: {result['filename']}")
-        
-        # Alte Backups aufräumen
-        deleted = BackupService.cleanup_old_backups(
-            max_age_days=config.get("retention_days", 30),
-            keep_minimum=config.get("keep_minimum", 5)
-        )
-        if deleted:
-            print(f"[Scheduler] {len(deleted)} alte Backup(s) gelöscht")
-            
+        success, message, filename = BackupManager.create_backup(db)
+        if success:
+            print(f"[Scheduler] Automatisches Backup erstellt: {filename}")
+            # Alte Backups aufräumen
+            deleted_count, _ = BackupManager.delete_old_backups(db)
+            if deleted_count > 0:
+                print(f"[Scheduler] {deleted_count} alte Backup(s) gelöscht")
+        else:
+            print(f"[Scheduler] Backup fehlgeschlagen: {message}")
     except Exception as e:
         print(f"[Scheduler] Fehler beim automatischen Backup: {e}")
+    finally:
+        db.close()
 
 
 @asynccontextmanager
@@ -83,20 +83,30 @@ async def lifespan(app: FastAPI):
         id='session_timeout_checker'
     )
     
-    # Automatisches Backup (täglich um 03:00)
-    backup_config = BackupConfig.get_config()
-    if backup_config.get("enabled", True):
-        scheduler.add_job(
-            scheduled_backup,
-            'cron',
-            hour=3,
-            minute=0,
-            id='scheduled_backup'
-        )
-        print("Automatisches Backup geplant (täglich um 03:00)")
+    # Backup-Scheduler (täglich zur konfigurierten Zeit)
+    # Standard: 03:00 Uhr
+    db = SessionLocal()
+    try:
+        settings = BackupManager.get_settings(db)
+        backup_time = settings.backup_schedule_time.split(":")
+        backup_hour = int(backup_time[0])
+        backup_minute = int(backup_time[1]) if len(backup_time) > 1 else 0
+    except Exception:
+        backup_hour = 3
+        backup_minute = 0
+    finally:
+        db.close()
+    
+    scheduler.add_job(
+        run_scheduled_backup,
+        'cron',
+        hour=backup_hour,
+        minute=backup_minute,
+        id='scheduled_backup'
+    )
     
     scheduler.start()
-    print(f"Background-Scheduler gestartet (Intervall: {check_interval}s)")
+    print(f"Background-Scheduler gestartet (Session-Check: {check_interval}s, Backup: {backup_hour:02d}:{backup_minute:02d})")
     
     yield
     
@@ -129,19 +139,6 @@ app.include_router(sessions.router)
 app.include_router(attendance.router)
 app.include_router(admin.router)
 app.include_router(export.router)
-app.include_router(settings.router)
-
-# Feature 12: Personalisierung
-app.include_router(preferences.router)
-
-# Feature 15: Team-Features
-app.include_router(announcements.router)
-app.include_router(groups.router)
-app.include_router(trainings.router)
-
-# Feature 9: Sicherheit
-app.include_router(roles.router)
-app.include_router(audit.router)
 app.include_router(backup.router)
 
 

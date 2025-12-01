@@ -77,11 +77,12 @@ class SessionStatus(str, Enum):
 
 
 # Dienstgrade mit Hierarchie (höhere Zahl = höherer Rang)
+# Korrekte Hierarchie: FM < OFM < HFM < UBM < BM < OBM < HBM < BI
 DIENSTGRADE = {
     "FM": ("Feuerwehrmann", 1),
     "OFM": ("Oberfeuerwehrmann", 2),
     "HFM": ("Hauptfeuerwehrmann", 3),
-    "UBM": ("Unterbrandmeister", 4),
+    "UBM": ("Unterbrandmeister", 4),  # Mindestrang für Einsatz-Ende
     "BM": ("Brandmeister", 5),
     "OBM": ("Oberbrandmeister", 6),
     "HBM": ("Hauptbrandmeister", 7),
@@ -225,121 +226,19 @@ class Announcement(Base):
     target_groups = Column(Text, nullable=True)  # JSON Array stored as text
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-    # Relationships
-    author = relationship("AdminUser")
 
-
-class Group(Base):
-    """Gruppen für Personal (Jugend, Aktive, Ehrenabteilung, etc.)"""
-    __tablename__ = "groups"
+class SystemSettings(Base):
+    """System-Einstellungen Tabelle (Singleton - nur ein Eintrag)"""
+    __tablename__ = "system_settings"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), unique=True, nullable=False)
-    description = Column(Text, nullable=True)
-    color = Column(String(7), default="#666666", nullable=False)  # Hex color
-    is_active = Column(Boolean, default=True, nullable=False)
-
-    # Relationships
-    members = relationship("Personnel", back_populates="group")
-
-
-class Training(Base):
-    """Schulungen und Ausbildungen"""
-    __tablename__ = "trainings"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)
-    category = Column(SQLEnum(TrainingCategory), default=TrainingCategory.LEHRGANG, nullable=False)
-    duration_hours = Column(Integer, nullable=True)
-    validity_months = Column(Integer, nullable=True)  # Null = unbegrenzt gültig
-
-    # Relationships
-    personnel_trainings = relationship("PersonnelTraining", back_populates="training")
-
-
-class PersonnelTraining(Base):
-    """Verknüpfung Personal zu Schulungen (Many-to-Many)"""
-    __tablename__ = "personnel_trainings"
-
-    id = Column(Integer, primary_key=True, index=True)
-    personnel_id = Column(Integer, ForeignKey("personnel.id"), nullable=False)
-    training_id = Column(Integer, ForeignKey("trainings.id"), nullable=False)
-    completed_date = Column(Date, nullable=False)
-    expires_date = Column(Date, nullable=True)
-    certificate_number = Column(String(100), nullable=True)
-    instructor = Column(String(255), nullable=True)
-    notes = Column(Text, nullable=True)
-
-    # Relationships
-    personnel = relationship("Personnel", back_populates="trainings")
-    training = relationship("Training", back_populates="personnel_trainings")
-
-
-# ===== Feature 9: Security Models =====
-
-# Standard-Berechtigungen
-DEFAULT_PERMISSIONS = {
-    RoleName.ADMIN: [
-        "personnel.view", "personnel.create", "personnel.edit", "personnel.delete",
-        "sessions.view", "sessions.create", "sessions.end",
-        "reports.view", "reports.export",
-        "settings.edit",
-        "announcements.view", "announcements.create", "announcements.edit", "announcements.delete",
-        "groups.view", "groups.create", "groups.edit", "groups.delete",
-        "trainings.view", "trainings.create", "trainings.edit", "trainings.delete",
-        "audit.view",
-        "backup.create", "backup.restore", "backup.delete",
-        "roles.view", "roles.edit"
-    ],
-    RoleName.WEHRFUEHRER: [
-        "personnel.view", "personnel.create", "personnel.edit", "personnel.delete",
-        "sessions.view", "sessions.create", "sessions.end",
-        "reports.view", "reports.export",
-        "announcements.view", "announcements.create", "announcements.edit", "announcements.delete",
-        "groups.view", "groups.create", "groups.edit",
-        "trainings.view", "trainings.create", "trainings.edit",
-        "audit.view"
-    ],
-    RoleName.GRUPPENFUEHRER: [
-        "personnel.view", "personnel.edit",
-        "sessions.view", "sessions.end",
-        "reports.view",
-        "announcements.view",
-        "groups.view",
-        "trainings.view"
-    ],
-    RoleName.MITGLIED: [
-        "personnel.view_own",
-        "sessions.view",
-        "announcements.view"
-    ]
-}
-
-
-class Role(Base):
-    """Rollen für Berechtigungen"""
-    __tablename__ = "roles"
-
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(SQLEnum(RoleName), unique=True, nullable=False)
-    permissions = Column(Text, nullable=False)  # JSON Array stored as text
-
-    # Relationships
-    personnel = relationship("Personnel", back_populates="role")
-    admin_users = relationship("AdminUser", back_populates="role")
-
-
-class AuditLog(Base):
-    """Audit-Log für Änderungsverfolgung"""
-    __tablename__ = "audit_log"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=True)
-    user_name = Column(String(255), nullable=True)  # Für gelöschte User
-    action = Column(SQLEnum(AuditAction), nullable=False)
-    entity_type = Column(String(50), nullable=False)
-    entity_id = Column(Integer, nullable=True)
-    changes = Column(Text, nullable=True)  # JSON: alte und neue Werte
-    ip_address = Column(String(50), nullable=True)
-    user_agent = Column(Text, nullable=True)
-    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False)
+    # Backup-Einstellungen
+    backup_enabled = Column(Boolean, default=True, nullable=False)
+    backup_path = Column(String(500), default="./backups/", nullable=False)
+    backup_schedule_time = Column(String(10), default="03:00", nullable=False)
+    backup_retention_days = Column(Integer, default=30, nullable=False)
+    # Zeitstempel des letzten Backups
+    last_backup_time = Column(DateTime, nullable=True)
+    last_backup_size = Column(Integer, nullable=True)  # Größe in Bytes
+    # Allgemeine Einstellungen
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

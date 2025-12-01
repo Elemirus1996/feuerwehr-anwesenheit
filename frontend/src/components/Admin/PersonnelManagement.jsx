@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
+// Korrekte Dienstgrade-Hierarchie (aufsteigend): FM < OFM < HFM < UBM < BM < OBM < HBM < BI
 const DIENSTGRADE = [
   'FM', 'OFM', 'HFM', 'UBM', 'BM', 'OBM', 'HBM', 'BI'
 ]

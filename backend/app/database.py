@@ -102,7 +102,7 @@ def create_demo_data():
             print("Demo-Daten bereits vorhanden - überspringe")
             return
 
-        # Demo-Mitarbeiter erstellen
+        # Demo-Mitarbeiter erstellen (mit korrekter Dienstgrade-Hierarchie)
         demo_personnel = [
             {"stammrollennummer": "001", "vorname": "Max", "nachname": "Mustermann", "dienstgrad": "FM"},
             {"stammrollennummer": "002", "vorname": "Anna", "nachname": "Schmidt", "dienstgrad": "OFM"},

@@ -3,13 +3,8 @@ import { Routes, Route, NavLink, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import PersonnelManagement from './PersonnelManagement'
 import SessionList from './SessionList'
-import AnnouncementManagement from './AnnouncementManagement'
-import GroupManagement from './GroupManagement'
-import TrainingManagement from './TrainingManagement'
-import AuditLog from './AuditLog'
-import BackupManagement from './BackupManagement'
-import RoleManagement from './RoleManagement'
-import PersonalizationSettings from '../Settings/PersonalizationSettings'
+import BackupSettings from './BackupSettings'
+import BackupManager from './BackupManager'
 
 function AdminDashboard({ onLogout }) {
   const [stats, setStats] = useState(null)
@@ -100,11 +95,11 @@ function AdminDashboard({ onLogout }) {
               <div className="text-sm text-gray-500">Sessions und Berichte</div>
             </NavLink>
             <NavLink
-              to="/admin/settings"
+              to="/admin/backup"
               className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <div className="font-semibold">⚙️ Einstellungen</div>
-              <div className="text-sm text-gray-500">Feuerwehr-Daten & Logo</div>
+              <div className="font-semibold">💾 Backup & Restore</div>
+              <div className="text-sm text-gray-500">Datensicherung verwalten</div>
             </NavLink>
             <a
               href="/"
@@ -220,14 +215,8 @@ function AdminDashboard({ onLogout }) {
                 <NavLink to="/admin/sessions" className={navLinkClass}>
                   Sessions
                 </NavLink>
-                <NavLink to="/admin/announcements" className={navLinkClass}>
-                  📢 Brett
-                </NavLink>
-                <NavLink to="/admin/groups" className={navLinkClass}>
-                  Gruppen
-                </NavLink>
-                <NavLink to="/admin/trainings" className={navLinkClass}>
-                  Schulungen
+                <NavLink to="/admin/backup" className={navLinkClass}>
+                  Backup
                 </NavLink>
               </nav>
             </div>
@@ -254,40 +243,20 @@ function AdminDashboard({ onLogout }) {
       </header>
 
       {/* Mobile Navigation */}
-      {showMobileMenu && (
-        <nav className="lg:hidden bg-white border-b px-4 py-2 flex flex-wrap gap-2">
-          <NavLink to="/admin" end className={navLinkClass} onClick={() => setShowMobileMenu(false)}>
-            Dashboard
-          </NavLink>
-          <NavLink to="/admin/personnel" className={navLinkClass} onClick={() => setShowMobileMenu(false)}>
-            Personal
-          </NavLink>
-          <NavLink to="/admin/sessions" className={navLinkClass} onClick={() => setShowMobileMenu(false)}>
-            Sessions
-          </NavLink>
-          <NavLink to="/admin/announcements" className={navLinkClass} onClick={() => setShowMobileMenu(false)}>
-            📢 Brett
-          </NavLink>
-          <NavLink to="/admin/groups" className={navLinkClass} onClick={() => setShowMobileMenu(false)}>
-            Gruppen
-          </NavLink>
-          <NavLink to="/admin/trainings" className={navLinkClass} onClick={() => setShowMobileMenu(false)}>
-            Schulungen
-          </NavLink>
-          <NavLink to="/admin/roles" className={navLinkClass} onClick={() => setShowMobileMenu(false)}>
-            Rollen
-          </NavLink>
-          <NavLink to="/admin/audit" className={navLinkClass} onClick={() => setShowMobileMenu(false)}>
-            Audit
-          </NavLink>
-          <NavLink to="/admin/backup" className={navLinkClass} onClick={() => setShowMobileMenu(false)}>
-            Backup
-          </NavLink>
-          <NavLink to="/admin/settings" className={navLinkClass} onClick={() => setShowMobileMenu(false)}>
-            Settings
-          </NavLink>
-        </nav>
-      )}
+      <nav className="md:hidden bg-white border-b px-4 py-2 flex gap-2 overflow-x-auto">
+        <NavLink to="/admin" end className={navLinkClass}>
+          Dashboard
+        </NavLink>
+        <NavLink to="/admin/personnel" className={navLinkClass}>
+          Personal
+        </NavLink>
+        <NavLink to="/admin/sessions" className={navLinkClass}>
+          Sessions
+        </NavLink>
+        <NavLink to="/admin/backup" className={navLinkClass}>
+          Backup
+        </NavLink>
+      </nav>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
@@ -295,13 +264,8 @@ function AdminDashboard({ onLogout }) {
           <Route path="/" element={<DashboardOverview />} />
           <Route path="/personnel" element={<PersonnelManagement />} />
           <Route path="/sessions" element={<SessionList />} />
-          <Route path="/announcements" element={<AnnouncementManagement />} />
-          <Route path="/groups" element={<GroupManagement />} />
-          <Route path="/trainings" element={<TrainingManagement />} />
-          <Route path="/roles" element={<RoleManagement />} />
-          <Route path="/audit" element={<AuditLog />} />
-          <Route path="/backup" element={<BackupManagement />} />
-          <Route path="/settings" element={<PersonalizationSettings />} />
+          <Route path="/backup" element={<BackupSettings />} />
+          <Route path="/backup/list" element={<BackupManager />} />
         </Routes>
       </main>
 
