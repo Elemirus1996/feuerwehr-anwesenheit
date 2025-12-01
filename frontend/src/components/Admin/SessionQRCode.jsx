@@ -25,13 +25,24 @@ function SessionQRCode({ sessionId, size = 'medium' }) {
     setLoading(false)
   }
 
-  const handleDownload = () => {
-    const link = document.createElement('a')
-    link.href = qrUrl
-    link.download = `qr_session_${sessionId}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  const handleDownload = async () => {
+    try {
+      // Fetch image as blob for reliable cross-browser download
+      const response = await fetch(qrUrl)
+      const blob = await response.blob()
+      const blobUrl = window.URL.createObjectURL(blob)
+      
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = `qr_session_${sessionId}.png`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      
+      window.URL.revokeObjectURL(blobUrl)
+    } catch (err) {
+      console.error('Download failed:', err)
+    }
   }
 
   const handlePrint = () => {

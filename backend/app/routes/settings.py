@@ -164,10 +164,11 @@ async def upload_logo(
     filename = f"logo.{ext}"
     file_path = os.path.join(UPLOAD_DIR, filename)
     
-    # Alte Logos löschen
-    for old_file in os.listdir(UPLOAD_DIR):
-        if old_file.startswith("logo."):
-            os.remove(os.path.join(UPLOAD_DIR, old_file))
+    # Alte Logos löschen (mit Existenzprüfung)
+    if os.path.exists(UPLOAD_DIR):
+        for old_file in os.listdir(UPLOAD_DIR):
+            if old_file.startswith("logo."):
+                os.remove(os.path.join(UPLOAD_DIR, old_file))
     
     # Neue Datei speichern
     with open(file_path, "wb") as f:

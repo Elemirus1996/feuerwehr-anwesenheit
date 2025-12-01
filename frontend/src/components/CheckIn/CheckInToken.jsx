@@ -14,7 +14,6 @@ function CheckInToken() {
   const [feedback, setFeedback] = useState(null)
 
   const token = searchParams.get('token')
-  const sessionId = searchParams.get('session')
 
   useEffect(() => {
     if (token) {

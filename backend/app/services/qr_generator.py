@@ -15,7 +15,8 @@ from ..utils.auth import SECRET_KEY, ALGORITHM
 
 
 # QR-Code URL-Basis (kann über Umgebungsvariable überschrieben werden)
-QR_BASE_URL = os.getenv("QR_BASE_URL", "http://localhost:5173")
+# In Produktion sollte HTTPS verwendet werden
+QR_BASE_URL = os.getenv("QR_BASE_URL", "https://localhost:5173")
 
 
 class QRGenerator:
