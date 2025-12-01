@@ -3,6 +3,8 @@ Authentifizierungs-Utilities für die Feuerwehr Anwesenheits-App
 """
 
 import os
+import secrets
+import warnings
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import JWTError, jwt
@@ -15,7 +17,18 @@ from ..database import get_db
 from ..models import AdminUser
 
 # Konfiguration
-SECRET_KEY = os.getenv("SECRET_KEY", "feuerwehr-anwesenheit-secret-key-2025")
+_env_secret_key = os.getenv("SECRET_KEY")
+if not _env_secret_key:
+    # Generate a random secret key for development, but warn the user
+    SECRET_KEY = secrets.token_hex(32)
+    warnings.warn(
+        "SECRET_KEY nicht gesetzt! Eine zufällige Schlüssel wurde generiert. "
+        "Bitte setzen Sie SECRET_KEY in der Produktion für konsistente Sessions.",
+        UserWarning
+    )
+else:
+    SECRET_KEY = _env_secret_key
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("TOKEN_EXPIRE_MINUTES", "480"))  # 8 Stunden
 

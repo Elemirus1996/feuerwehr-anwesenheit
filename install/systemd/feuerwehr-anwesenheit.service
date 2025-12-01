@@ -15,10 +15,12 @@ Environment="DATABASE_PATH=/opt/feuerwehr-anwesenheit/data/feuerwehr_anwesenheit
 Environment="CREATE_DEMO_DATA=true"
 Environment="HOST=0.0.0.0"
 Environment="PORT=8000"
-Environment="SECRET_KEY=change-me-in-production"
 Environment="FEUERWACHE_NAME=Freiwillige Feuerwehr Musterstadt"
 Environment="AUTO_TIMEOUT_HOURS=3"
 Environment="SESSION_CHECK_INTERVAL=60"
+
+# Load SECRET_KEY from environment file if it exists
+EnvironmentFile=-/opt/feuerwehr-anwesenheit/.env
 
 # Daten-Verzeichnis erstellen
 ExecStartPre=/bin/mkdir -p /opt/feuerwehr-anwesenheit/data

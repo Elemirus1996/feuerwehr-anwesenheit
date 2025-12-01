@@ -1,40 +1,23 @@
 {
-    "// Feuerwehr Anwesenheits-App Konfiguration": "",
-    "// Alle Werte können angepasst werden": "",
-    
     "server": {
-        "// Host-Adresse (0.0.0.0 = alle Interfaces)": "",
         "host": "0.0.0.0",
-        "// Port für die Anwendung": "",
         "port": 8000
     },
-    
     "database": {
-        "// Pfad zur SQLite-Datenbankdatei": "",
         "path": "/opt/feuerwehr-anwesenheit/data/feuerwehr_anwesenheit.db"
     },
-    
     "feuerwache": {
-        "// Name der Feuerwache (wird in PDFs angezeigt)": "",
         "name": "Freiwillige Feuerwehr Musterstadt"
     },
-    
     "session": {
-        "// Automatisches Timeout für Übungs-/Arbeitsdienste (in Stunden)": "",
         "auto_timeout_hours": 3,
-        "// Intervall für Timeout-Prüfung (in Sekunden)": "",
         "check_interval_seconds": 60
     },
-    
     "auth": {
-        "// Geheimer Schlüssel für JWT-Tokens (ÄNDERN!)": "",
-        "secret_key": "change-me-in-production-with-a-secure-random-string",
-        "// Token-Gültigkeitsdauer (in Minuten)": "",
+        "secret_key": "CHANGE_ME_TO_A_SECURE_RANDOM_STRING",
         "token_expire_minutes": 480
     },
-    
     "demo": {
-        "// Demo-Daten beim Start erstellen": "",
         "create_demo_data": true
     }
 }

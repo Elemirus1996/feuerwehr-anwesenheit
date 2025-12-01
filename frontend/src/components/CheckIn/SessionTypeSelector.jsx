@@ -53,7 +53,7 @@ function SessionTypeSelector({ onSessionCreated }) {
               disabled={loading}
               className={`w-full ${type.color} text-white text-xl font-semibold 
                          py-6 px-8 rounded-xl shadow-lg transition-all duration-200 
-                         active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed
+                         active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
                          flex items-center justify-center gap-4`}
             >
               <span className="text-3xl">{type.icon}</span>

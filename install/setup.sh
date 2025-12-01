@@ -19,7 +19,6 @@ NC='\033[0m' # No Color
 APP_DIR="/opt/feuerwehr-anwesenheit"
 APP_USER="feuerwehr"
 SERVICE_NAME="feuerwehr-anwesenheit"
-PYTHON_VERSION="3.9"
 
 # Funktionen
 print_header() {
@@ -132,7 +131,18 @@ create_config() {
         print_info "Konfigurationsdatei existiert bereits"
     fi
     
+    # Environment-Datei mit SECRET_KEY erstellen
+    if [ ! -f "$APP_DIR/.env" ]; then
+        SECRET_KEY=$(openssl rand -hex 32)
+        echo "SECRET_KEY=$SECRET_KEY" > "$APP_DIR/.env"
+        chmod 600 "$APP_DIR/.env"
+        print_info "SECRET_KEY generiert und in $APP_DIR/.env gespeichert"
+    else
+        print_info "Environment-Datei existiert bereits"
+    fi
+    
     chown "$APP_USER:$APP_USER" "$APP_DIR/config.json"
+    chown "$APP_USER:$APP_USER" "$APP_DIR/.env"
     print_success "Konfiguration erstellt"
 }
 

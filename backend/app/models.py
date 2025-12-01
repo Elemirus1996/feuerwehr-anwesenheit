@@ -4,6 +4,7 @@ Datenbank-Modelle für die Feuerwehr Anwesenheits-App
 
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum as SQLEnum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
@@ -120,7 +121,7 @@ class Attendance(Base):
     session = relationship("Session", back_populates="attendances")
     person = relationship("Personnel", back_populates="attendances")
 
-    def get_duration_minutes(self) -> int | None:
+    def get_duration_minutes(self) -> Optional[int]:
         """Berechnet die Anwesenheitsdauer in Minuten"""
         if self.check_out_time:
             delta = self.check_out_time - self.check_in_time

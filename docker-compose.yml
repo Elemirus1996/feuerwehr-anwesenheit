@@ -2,6 +2,12 @@
 # Feuerwehr Anwesenheits-App - Docker Compose Konfiguration
 # =============================================================================
 # Einfache Deployment-Lösung für die Anwendung
+# 
+# WICHTIG: Vor dem Start eine .env Datei erstellen mit:
+#   SECRET_KEY=<your-random-secret-key>
+# 
+# Generieren Sie einen sicheren Schlüssel mit:
+#   openssl rand -hex 32
 # =============================================================================
 
 version: '3.8'
@@ -33,8 +39,8 @@ services:
       - AUTO_TIMEOUT_HOURS=3
       - SESSION_CHECK_INTERVAL=60
       
-      # Authentifizierung (ÄNDERN IN PRODUKTION!)
-      - SECRET_KEY=change-me-in-production-with-a-secure-random-string
+      # Authentifizierung - SECRET_KEY aus .env Datei oder Umgebung
+      - SECRET_KEY=${SECRET_KEY:-}
       - TOKEN_EXPIRE_MINUTES=480
       
       # Demo-Daten (auf false setzen nach erstem Start)
