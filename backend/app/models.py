@@ -85,6 +85,7 @@ class Session(Base):
     end_time = Column(DateTime, nullable=True)
     status = Column(SQLEnum(SessionStatus), default=SessionStatus.ACTIVE, nullable=False)
     ended_by_stammrollennummer = Column(String(50), nullable=True)
+    qr_token = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Relationship zu Attendance
@@ -137,3 +138,17 @@ class AdminUser(Base):
     username = Column(String(50), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class FireStation(Base):
+    """Feuerwehr-Daten Tabelle"""
+    __tablename__ = "fire_station"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False)
+    logo_path = Column(String(500), nullable=True)
+    street = Column(String(255), nullable=True)
+    city = Column(String(255), nullable=False)
+    postal_code = Column(String(20), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)

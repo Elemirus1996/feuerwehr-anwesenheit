@@ -18,7 +18,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 from app.database import init_db, create_demo_data, SessionLocal
 from app.services.session_manager import SessionManager
-from app.routes import personnel, sessions, attendance, admin, export
+from app.routes import personnel, sessions, attendance, admin, export, settings
 
 
 # Background Scheduler für Session-Timeouts
@@ -92,6 +92,7 @@ app.include_router(sessions.router)
 app.include_router(attendance.router)
 app.include_router(admin.router)
 app.include_router(export.router)
+app.include_router(settings.router)
 
 
 # Health Check Endpoint
