@@ -4,12 +4,16 @@ Feature 9: Sicherheit - Audit-Log
 """
 
 import json
+import logging
 from datetime import datetime
 from typing import Optional, Any
 from sqlalchemy.orm import Session
 
 from ..database import SessionLocal
 from ..models import AuditLog, AuditAction
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 def mask_sensitive_data(data: dict) -> dict:
@@ -81,7 +85,7 @@ def log_audit_event(
         db.commit()
         
     except Exception as e:
-        print(f"Fehler beim Schreiben des Audit-Logs: {e}")
+        logger.error(f"Fehler beim Schreiben des Audit-Logs: {e}")
         db.rollback()
     finally:
         if should_close_db:

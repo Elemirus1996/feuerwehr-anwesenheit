@@ -153,43 +153,23 @@
 }
 
 .priority-low {
-  background-color: #f3f4f6;
-  color: #374151;
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
 }
 
 .priority-normal {
-  background-color: #dbeafe;
-  color: #1e40af;
+  background-color: var(--info-light);
+  color: var(--info);
 }
 
 .priority-high {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: var(--warning-light);
+  color: var(--warning);
 }
 
 .priority-urgent {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-[data-theme="dark"] .priority-low {
-  background-color: #374151;
-  color: #d1d5db;
-}
-
-[data-theme="dark"] .priority-normal {
-  background-color: #1e40af;
-  color: #dbeafe;
-}
-
-[data-theme="dark"] .priority-high {
-  background-color: #92400e;
-  color: #fef3c7;
-}
-
-[data-theme="dark"] .priority-urgent {
-  background-color: #991b1b;
-  color: #fee2e2;
+  background-color: var(--error-light);
+  color: var(--error);
 }
 
 /* Announcement Banner Animation */

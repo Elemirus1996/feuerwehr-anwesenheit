@@ -80,14 +80,18 @@ export const ThemeProvider = ({ children }) => {
     const token = localStorage.getItem('token')
     if (token) {
       try {
-        await axios.put('/api/preferences', {
-          theme: newPrefs.theme,
-          font_size: newPrefs.fontSize,
-          high_contrast: newPrefs.highContrast,
-          language: newPrefs.language
-        }, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        // Only include defined values in API payload
+        const apiPayload = {}
+        if (newPrefs.theme !== undefined) apiPayload.theme = newPrefs.theme
+        if (newPrefs.fontSize !== undefined) apiPayload.font_size = newPrefs.fontSize
+        if (newPrefs.highContrast !== undefined) apiPayload.high_contrast = newPrefs.highContrast
+        if (newPrefs.language !== undefined) apiPayload.language = newPrefs.language
+        
+        if (Object.keys(apiPayload).length > 0) {
+          await axios.put('/api/preferences', apiPayload, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        }
       } catch (err) {
         console.log('Could not save preferences to API')
       }

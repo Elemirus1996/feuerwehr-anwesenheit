@@ -37,7 +37,7 @@ class BackupService:
         
         # Prüfe ob Datenbank existiert
         if not os.path.exists(DATABASE_PATH):
-            raise FileNotFoundError(f"Datenbank nicht gefunden: {DATABASE_PATH}")
+            raise FileNotFoundError("Datenbank nicht gefunden")
         
         # Erstelle ZIP-Archiv mit der Datenbank
         with zipfile.ZipFile(backup_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
@@ -90,11 +90,24 @@ class BackupService:
         """Gibt den Pfad zu einem Backup zurück"""
         BackupService.ensure_backup_dir()
         
-        # Sicherheitsprüfung: Nur Dateien im Backup-Verzeichnis erlauben
+        # Sicherheitsprüfung: Whitelist-basierte Validierung
+        # Nur alphanumerische Zeichen, Bindestriche, Unterstriche und Punkte erlaubt
+        import re
+        if not re.match(r'^backup_[\d-]+_[\d-]+\.db\.zip$', filename):
+            return None
+        
+        # Zusätzliche Path Traversal Prüfung
         if ".." in filename or "/" in filename or "\\" in filename:
             return None
         
         filepath = os.path.join(BackupService.BACKUP_DIR, filename)
+        
+        # Verifiziere, dass der normalisierte Pfad im Backup-Verzeichnis ist
+        normalized_path = os.path.normpath(filepath)
+        normalized_backup_dir = os.path.normpath(BackupService.BACKUP_DIR)
+        
+        if not normalized_path.startswith(normalized_backup_dir):
+            return None
         
         if os.path.exists(filepath) and os.path.isfile(filepath):
             return filepath
