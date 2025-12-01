@@ -15,10 +15,10 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
 from sqlalchemy.orm import Session
 
-from ..models import Session as SessionModel, Attendance, Personnel
+from ..models import Session as SessionModel, Attendance, Personnel, FireStation
 
-# Konfiguration
-FEUERWACHE_NAME = os.getenv("FEUERWACHE_NAME", "Freiwillige Feuerwehr Musterstadt")
+# Upload-Verzeichnis für Logo
+UPLOAD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "uploads", "logo")
 
 
 class PDFGenerator:
@@ -105,12 +105,35 @@ class PDFGenerator:
         return f"{hours}h {minutes}min"
 
     @staticmethod
+    def _get_fire_station_info(db: Session) -> tuple:
+        """Holt Feuerwehr-Daten für PDF"""
+        fire_station = db.query(FireStation).first()
+        if fire_station:
+            name = fire_station.name
+            address = ""
+            if fire_station.street:
+                address = f"{fire_station.street}, "
+            address += f"{fire_station.postal_code} {fire_station.city}"
+            
+            logo_path = None
+            if fire_station.logo_path:
+                full_logo_path = os.path.join(UPLOAD_DIR, fire_station.logo_path)
+                if os.path.exists(full_logo_path):
+                    logo_path = full_logo_path
+            
+            return name, address, logo_path
+        return "Freiwillige Feuerwehr", "", None
+
+    @staticmethod
     def generate_session_pdf(db: Session, session_id: int) -> bytes:
         """Generiert ein PDF für eine einzelne Session"""
         # Session laden
         session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
         if not session:
             raise ValueError("Session nicht gefunden")
+
+        # Feuerwehr-Daten laden
+        fire_station_name, fire_station_address, logo_path = PDFGenerator._get_fire_station_info(db)
 
         # Attendance-Daten laden
         attendances = db.query(Attendance).filter(
@@ -131,8 +154,20 @@ class PDFGenerator:
         styles = PDFGenerator._get_styles()
         elements = []
 
-        # Header
-        elements.append(Paragraph(FEUERWACHE_NAME, styles['CustomTitle']))
+        # Header mit Logo (falls vorhanden)
+        if logo_path:
+            try:
+                logo = Image(logo_path, width=3*cm, height=3*cm)
+                logo.hAlign = 'CENTER'
+                elements.append(logo)
+                elements.append(Spacer(1, 0.3*cm))
+            except Exception:
+                pass  # Falls Logo nicht geladen werden kann, ohne Logo fortfahren
+
+        # Header Text
+        elements.append(Paragraph(fire_station_name, styles['CustomTitle']))
+        if fire_station_address:
+            elements.append(Paragraph(fire_station_address, styles['CustomNormal']))
         elements.append(Paragraph("Anwesenheitsliste", styles['CustomSubtitle']))
         elements.append(Spacer(1, 0.5*cm))
 
@@ -248,7 +283,7 @@ class PDFGenerator:
 
         # Footer
         elements.append(Paragraph(
-            f"Erstellt am {datetime.now().strftime('%d.%m.%Y um %H:%M Uhr')} | {FEUERWACHE_NAME}",
+            f"Erstellt am {datetime.now().strftime('%d.%m.%Y um %H:%M Uhr')} | {fire_station_name}",
             styles['Footer']
         ))
 
@@ -266,6 +301,9 @@ class PDFGenerator:
         event_type: Optional[str] = None
     ) -> bytes:
         """Generiert einen PDF-Bericht für einen Zeitraum"""
+        # Feuerwehr-Daten laden
+        fire_station_name, fire_station_address, logo_path = PDFGenerator._get_fire_station_info(db)
+
         # Sessions im Zeitraum finden
         query = db.query(SessionModel).filter(
             SessionModel.start_time >= start_date,
@@ -291,8 +329,20 @@ class PDFGenerator:
         styles = PDFGenerator._get_styles()
         elements = []
 
-        # Header
-        elements.append(Paragraph(FEUERWACHE_NAME, styles['CustomTitle']))
+        # Header mit Logo (falls vorhanden)
+        if logo_path:
+            try:
+                logo = Image(logo_path, width=3*cm, height=3*cm)
+                logo.hAlign = 'CENTER'
+                elements.append(logo)
+                elements.append(Spacer(1, 0.3*cm))
+            except Exception:
+                pass  # Falls Logo nicht geladen werden kann, ohne Logo fortfahren
+
+        # Header Text
+        elements.append(Paragraph(fire_station_name, styles['CustomTitle']))
+        if fire_station_address:
+            elements.append(Paragraph(fire_station_address, styles['CustomNormal']))
         elements.append(Paragraph("Anwesenheitsbericht", styles['CustomSubtitle']))
         elements.append(Spacer(1, 0.5*cm))
 
@@ -347,7 +397,7 @@ class PDFGenerator:
 
         # Footer
         elements.append(Paragraph(
-            f"Erstellt am {datetime.now().strftime('%d.%m.%Y um %H:%M Uhr')} | {FEUERWACHE_NAME}",
+            f"Erstellt am {datetime.now().strftime('%d.%m.%Y um %H:%M Uhr')} | {fire_station_name}",
             styles['Footer']
         ))
 

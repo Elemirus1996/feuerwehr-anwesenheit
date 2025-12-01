@@ -5,7 +5,7 @@ Datenbank-Konfiguration und Verbindung für die Feuerwehr Anwesenheits-App
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from .models import Base, Personnel, AdminUser, DIENSTGRADE
+from .models import Base, Personnel, AdminUser, FireStation, DIENSTGRADE
 from passlib.context import CryptContext
 
 # Datenbank-Pfad (kann über Umgebungsvariable überschrieben werden)
@@ -73,6 +73,17 @@ def create_demo_data():
                 password_hash=pwd_context.hash("feuerwehr2025")
             )
             db.add(admin_user)
+
+        # Feuerwehr-Daten initialisieren
+        fire_station = db.query(FireStation).first()
+        if not fire_station:
+            fire_station = FireStation(
+                name="Freiwillige Feuerwehr",
+                city="Musterstadt",
+                postal_code="12345"
+            )
+            db.add(fire_station)
+            print("Standard Feuerwehr-Daten erstellt")
 
         db.commit()
         print(f"Demo-Daten erstellt: {len(demo_personnel)} Mitarbeiter und 1 Admin-Benutzer")
