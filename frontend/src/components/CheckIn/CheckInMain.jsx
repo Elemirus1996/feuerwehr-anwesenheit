@@ -3,6 +3,7 @@ import axios from 'axios'
 import SessionTypeSelector from './SessionTypeSelector'
 import StammrollenInput from './StammrollenInput'
 import CurrentAttendees from './CurrentAttendees'
+import AnnouncementBanner from './AnnouncementBanner'
 
 function CheckInMain() {
   const [activeSession, setActiveSession] = useState(null)
@@ -141,6 +142,9 @@ function CheckInMain() {
   // Hauptansicht mit aktiver Session
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Announcement Banner */}
+      <AnnouncementBanner />
+
       {/* Feedback Banner */}
       {feedback && (
         <div className={`fixed top-0 left-0 right-0 z-50 p-4 text-center text-white text-lg font-semibold
