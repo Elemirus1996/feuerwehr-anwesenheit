@@ -2,14 +2,63 @@
 Datenbank-Modelle für die Feuerwehr Anwesenheits-App
 """
 
-from datetime import datetime
+from datetime import datetime, date
 from enum import Enum
 from typing import Optional
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, ForeignKey, Text, Enum as SQLEnum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
+
+
+# ===== Feature 12: Personalization Enums =====
+class ThemeType(str, Enum):
+    """Theme-Typen für Benutzereinstellungen"""
+    LIGHT = "light"
+    DARK = "dark"
+    AUTO = "auto"
+
+
+class FontSize(str, Enum):
+    """Schriftgrößen-Optionen"""
+    NORMAL = "normal"
+    LARGE = "large"
+    EXTRA_LARGE = "extra_large"
+
+
+# ===== Feature 15: Team-Features Enums =====
+class AnnouncementPriority(str, Enum):
+    """Prioritäten für Ankündigungen"""
+    LOW = "low"
+    NORMAL = "normal"
+    HIGH = "high"
+    URGENT = "urgent"
+
+
+class TrainingCategory(str, Enum):
+    """Kategorien für Schulungen"""
+    LEHRGANG = "lehrgang"
+    FORTBILDUNG = "fortbildung"
+    ZERTIFIKAT = "zertifikat"
+
+
+# ===== Feature 9: Security Enums =====
+class RoleName(str, Enum):
+    """Rollen-Namen"""
+    ADMIN = "admin"
+    WEHRFUEHRER = "wehrfuehrer"
+    GRUPPENFUEHRER = "gruppenfuehrer"
+    MITGLIED = "mitglied"
+
+
+class AuditAction(str, Enum):
+    """Aktionen für Audit-Log"""
+    CREATE = "create"
+    UPDATE = "update"
+    DELETE = "delete"
+    LOGIN = "login"
+    LOGOUT = "logout"
 
 
 class EventType(str, Enum):
@@ -54,10 +103,15 @@ class Personnel(Base):
     nachname = Column(String(100), nullable=False)
     dienstgrad = Column(String(10), nullable=False, default="FM")
     aktiv = Column(Boolean, default=True, nullable=False)
+    group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
-    # Relationship zu Attendance
+    # Relationships
     attendances = relationship("Attendance", back_populates="person")
+    group = relationship("Group", back_populates="members")
+    role = relationship("Role", back_populates="personnel")
+    trainings = relationship("PersonnelTraining", back_populates="personnel")
 
     def get_rang_level(self) -> int:
         """Gibt das Rang-Level zurück (für Berechtigungsprüfungen)"""
@@ -78,6 +132,7 @@ class Session(Base):
     end_time = Column(DateTime, nullable=True)
     status = Column(SQLEnum(SessionStatus), default=SessionStatus.ACTIVE, nullable=False)
     ended_by_stammrollennummer = Column(String(50), nullable=True)
+    qr_token = Column(String(500), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
     # Relationship zu Attendance
@@ -129,6 +184,46 @@ class AdminUser(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+    # Relationships
+    role = relationship("Role", back_populates="admin_users")
+    preferences = relationship("UserPreferences", back_populates="admin_user", uselist=False)
+
+
+# ===== Feature 12: Personalization Models =====
+
+class UserPreferences(Base):
+    """Benutzereinstellungen für Personalisierung"""
+    __tablename__ = "user_preferences"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("admin_users.id"), unique=True, nullable=False)
+    theme = Column(SQLEnum(ThemeType), default=ThemeType.AUTO, nullable=False)
+    font_size = Column(SQLEnum(FontSize), default=FontSize.NORMAL, nullable=False)
+    high_contrast = Column(Boolean, default=False, nullable=False)
+    language = Column(String(5), default="de", nullable=False)
+
+    # Relationships
+    admin_user = relationship("AdminUser", back_populates="preferences")
+
+
+# ===== Feature 15: Team-Features Models =====
+
+class Announcement(Base):
+    """Ankündigungen für Schwarzes Brett"""
+    __tablename__ = "announcements"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String(255), nullable=False)
+    content = Column(Text, nullable=False)
+    author_id = Column(Integer, ForeignKey("admin_users.id"), nullable=False)
+    priority = Column(SQLEnum(AnnouncementPriority), default=AnnouncementPriority.NORMAL, nullable=False)
+    valid_from = Column(DateTime, default=datetime.utcnow, nullable=False)
+    valid_until = Column(DateTime, nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    target_groups = Column(Text, nullable=True)  # JSON Array stored as text
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 
 

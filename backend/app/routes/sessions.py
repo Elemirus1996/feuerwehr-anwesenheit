@@ -5,12 +5,14 @@ Sessions API Routes für die Feuerwehr Anwesenheits-App
 from typing import List, Optional
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import Response
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import Session as SessionModel, Attendance, EventType, SessionStatus
 from ..services.session_manager import SessionManager
+from ..services.qr_generator import QRGenerator
 from ..utils.auth import get_current_user
 
 router = APIRouter(prefix="/api/sessions", tags=["Sessions"])
@@ -74,6 +76,13 @@ def create_session(session_data: SessionCreate, db: Session = Depends(get_db)):
     """Erstellt eine neue Session"""
     try:
         session = SessionManager.create_session(db, session_data.event_type)
+        
+        # QR-Token generieren und speichern
+        token = QRGenerator.generate_session_token(session.id)
+        session.qr_token = token
+        db.commit()
+        db.refresh(session)
+        
         return {
             "id": session.id,
             "event_type": session.event_type.value,
@@ -234,4 +243,82 @@ def get_session_detail(
         "created_at": session.created_at.isoformat(),
         "attendances": attendance_list,
         "total_attendees": len(attendance_list)
+    }
+
+
+# QR-Code Routen
+@router.get("/{session_id}/qr")
+def get_session_qr_code(
+    session_id: int,
+    db: Session = Depends(get_db)
+):
+    """Gibt den QR-Code für eine Session als PNG zurück"""
+    session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session nicht gefunden"
+        )
+    
+    # Nur für aktive Sessions
+    if session.status != SessionStatus.ACTIVE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="QR-Code nur für aktive Sessions verfügbar"
+        )
+    
+    # Token aus Session oder neu generieren
+    token = session.qr_token
+    if not token:
+        token = QRGenerator.generate_session_token(session_id)
+        session.qr_token = token
+        db.commit()
+    
+    # QR-Code generieren
+    png_bytes = QRGenerator.generate_qr_code_image(session_id, token)
+    
+    return Response(
+        content=png_bytes,
+        media_type="image/png",
+        headers={
+            "Content-Disposition": f"inline; filename=qr_session_{session_id}.png"
+        }
+    )
+
+
+@router.get("/checkin/token/{token}")
+def validate_checkin_token(
+    token: str,
+    db: Session = Depends(get_db)
+):
+    """Validiert einen Check-in Token und gibt Session-Daten zurück"""
+    session_id = QRGenerator.validate_session_token(token)
+    
+    if session_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token ungültig oder abgelaufen"
+        )
+    
+    session = db.query(SessionModel).filter(SessionModel.id == session_id).first()
+    if not session:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Session nicht gefunden"
+        )
+    
+    if session.status != SessionStatus.ACTIVE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Session ist nicht mehr aktiv"
+        )
+    
+    return {
+        "valid": True,
+        "session": {
+            "id": session.id,
+            "event_type": session.event_type.value,
+            "event_type_display": session.get_event_type_display(),
+            "start_time": session.start_time.isoformat()
+        }
     }

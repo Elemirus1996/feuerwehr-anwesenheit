@@ -8,16 +8,19 @@ const DIENSTGRADE = [
 
 function PersonnelManagement() {
   const [personnel, setPersonnel] = useState([])
+  const [groups, setGroups] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showForm, setShowForm] = useState(false)
   const [editingPerson, setEditingPerson] = useState(null)
+  const [filterGroup, setFilterGroup] = useState('')
   const [formData, setFormData] = useState({
     stammrollennummer: '',
     vorname: '',
     nachname: '',
     dienstgrad: 'FM',
-    aktiv: true
+    aktiv: true,
+    group_id: ''
   })
 
   const token = localStorage.getItem('token')
@@ -25,7 +28,8 @@ function PersonnelManagement() {
 
   const loadPersonnel = async () => {
     try {
-      const response = await axios.get('/api/personnel/', authHeader)
+      const params = filterGroup ? `?group_id=${filterGroup}` : ''
+      const response = await axios.get(`/api/personnel/${params}`, authHeader)
       setPersonnel(response.data)
     } catch (err) {
       setError('Fehler beim Laden der Mitarbeiter')
@@ -34,9 +38,22 @@ function PersonnelManagement() {
     }
   }
 
+  const loadGroups = async () => {
+    try {
+      const response = await axios.get('/api/groups/', authHeader)
+      setGroups(response.data)
+    } catch (err) {
+      console.log('Fehler beim Laden der Gruppen:', err)
+    }
+  }
+
+  useEffect(() => {
+    loadGroups()
+  }, [])
+
   useEffect(() => {
     loadPersonnel()
-  }, [])
+  }, [filterGroup])
 
   const resetForm = () => {
     setFormData({
@@ -44,7 +61,8 @@ function PersonnelManagement() {
       vorname: '',
       nachname: '',
       dienstgrad: 'FM',
-      aktiv: true
+      aktiv: true,
+      group_id: ''
     })
     setEditingPerson(null)
     setShowForm(false)
@@ -57,7 +75,8 @@ function PersonnelManagement() {
       vorname: person.vorname,
       nachname: person.nachname,
       dienstgrad: person.dienstgrad,
-      aktiv: person.aktiv
+      aktiv: person.aktiv,
+      group_id: person.group_id || ''
     })
     setShowForm(true)
   }
@@ -66,16 +85,22 @@ function PersonnelManagement() {
     e.preventDefault()
     setError(null)
 
+    const submitData = {
+      ...formData,
+      group_id: formData.group_id ? parseInt(formData.group_id) : null
+    }
+
     try {
       if (editingPerson) {
         await axios.put(`/api/personnel/${editingPerson.id}`, {
-          vorname: formData.vorname,
-          nachname: formData.nachname,
-          dienstgrad: formData.dienstgrad,
-          aktiv: formData.aktiv
+          vorname: submitData.vorname,
+          nachname: submitData.nachname,
+          dienstgrad: submitData.dienstgrad,
+          aktiv: submitData.aktiv,
+          group_id: submitData.group_id
         }, authHeader)
       } else {
-        await axios.post('/api/personnel/', formData, authHeader)
+        await axios.post('/api/personnel/', submitData, authHeader)
       }
       loadPersonnel()
       resetForm()
@@ -178,6 +203,21 @@ function PersonnelManagement() {
                   required
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Gruppe
+                </label>
+                <select
+                  value={formData.group_id}
+                  onChange={(e) => setFormData({ ...formData, group_id: e.target.value })}
+                  className="input-touch"
+                >
+                  <option value="">Keine Gruppe</option>
+                  {groups.map(g => (
+                    <option key={g.id} value={g.id}>{g.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div className="mt-4">
               <label className="flex items-center gap-2">
@@ -202,6 +242,23 @@ function PersonnelManagement() {
         </div>
       )}
 
+      {/* Filter */}
+      <div className="card mb-4">
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium text-gray-700">Filter nach Gruppe:</label>
+          <select
+            value={filterGroup}
+            onChange={(e) => setFilterGroup(e.target.value)}
+            className="input-touch py-2 max-w-xs"
+          >
+            <option value="">Alle Gruppen</option>
+            {groups.map(g => (
+              <option key={g.id} value={g.id}>{g.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       {/* Tabelle */}
       <div className="card overflow-x-auto">
         <table className="w-full">
@@ -210,6 +267,7 @@ function PersonnelManagement() {
               <th className="text-left py-3 px-4 font-semibold text-gray-600">Stammr.</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-600">Dienstgrad</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-600">Name</th>
+              <th className="text-left py-3 px-4 font-semibold text-gray-600">Gruppe</th>
               <th className="text-left py-3 px-4 font-semibold text-gray-600">Status</th>
               <th className="text-right py-3 px-4 font-semibold text-gray-600">Aktionen</th>
             </tr>
@@ -224,6 +282,15 @@ function PersonnelManagement() {
                   </span>
                 </td>
                 <td className="py-3 px-4">{person.vorname} {person.nachname}</td>
+                <td className="py-3 px-4">
+                  {person.group_name ? (
+                    <span className="px-2 py-1 rounded text-sm bg-gray-100 text-gray-700">
+                      {person.group_name}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
+                </td>
                 <td className="py-3 px-4">
                   <span className={`px-2 py-1 rounded text-sm ${
                     person.aktiv 

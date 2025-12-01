@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import SessionQRCode from './SessionQRCode'
 
 function SessionList() {
   const [sessions, setSessions] = useState([])
@@ -342,6 +343,14 @@ function SessionList() {
                   </tbody>
                 </table>
               </div>
+
+              {/* QR-Code für aktive Sessions */}
+              {selectedSession.status === 'active' && (
+                <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-semibold mb-3 text-center">QR-Code für Check-in</h4>
+                  <SessionQRCode sessionId={selectedSession.id} size="medium" />
+                </div>
+              )}
 
               <div className="mt-6 flex gap-3">
                 <button
