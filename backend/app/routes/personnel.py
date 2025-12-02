@@ -21,6 +21,7 @@ class PersonnelBase(BaseModel):
     nachname: str
     dienstgrad: str = "FM"
     aktiv: bool = True
+    group_id: Optional[int] = None
 
 
 class PersonnelCreate(PersonnelBase):
@@ -32,10 +33,18 @@ class PersonnelUpdate(BaseModel):
     nachname: Optional[str] = None
     dienstgrad: Optional[str] = None
     aktiv: Optional[bool] = None
+    group_id: Optional[int] = None
 
 
-class PersonnelResponse(PersonnelBase):
+class PersonnelResponse(BaseModel):
     id: int
+    stammrollennummer: str
+    vorname: str
+    nachname: str
+    dienstgrad: str
+    aktiv: bool
+    group_id: Optional[int] = None
+    group_name: Optional[str] = None
     created_at: str
 
     class Config:
@@ -87,6 +96,7 @@ def get_dienstgrade():
 @router.get("/", response_model=List[PersonnelResponse])
 def list_personnel(
     aktiv_only: bool = False,
+    group_id: Optional[int] = None,
     db: Session = Depends(get_db),
     _: any = Depends(get_current_user)
 ):
@@ -94,6 +104,8 @@ def list_personnel(
     query = db.query(Personnel)
     if aktiv_only:
         query = query.filter(Personnel.aktiv == True)
+    if group_id:
+        query = query.filter(Personnel.group_id == group_id)
     personnel = query.order_by(Personnel.nachname, Personnel.vorname).all()
     
     return [
@@ -104,6 +116,8 @@ def list_personnel(
             nachname=p.nachname,
             dienstgrad=p.dienstgrad,
             aktiv=p.aktiv,
+            group_id=p.group_id,
+            group_name=p.group.name if p.group else None,
             created_at=p.created_at.isoformat()
         )
         for p in personnel
@@ -131,6 +145,8 @@ def get_personnel(
         nachname=person.nachname,
         dienstgrad=person.dienstgrad,
         aktiv=person.aktiv,
+        group_id=person.group_id,
+        group_name=person.group.name if person.group else None,
         created_at=person.created_at.isoformat()
     )
 
@@ -164,6 +180,8 @@ def create_personnel(
         nachname=person.nachname,
         dienstgrad=person.dienstgrad,
         aktiv=person.aktiv,
+        group_id=person.group_id,
+        group_name=person.group.name if person.group else None,
         created_at=person.created_at.isoformat()
     )
 
@@ -197,6 +215,8 @@ def update_personnel(
         nachname=person.nachname,
         dienstgrad=person.dienstgrad,
         aktiv=person.aktiv,
+        group_id=person.group_id,
+        group_name=person.group.name if person.group else None,
         created_at=person.created_at.isoformat()
     )
 

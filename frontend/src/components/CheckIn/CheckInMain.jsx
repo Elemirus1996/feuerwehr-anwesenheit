@@ -3,6 +3,7 @@ import axios from 'axios'
 import SessionTypeSelector from './SessionTypeSelector'
 import StammrollenInput from './StammrollenInput'
 import CurrentAttendees from './CurrentAttendees'
+import AnnouncementBanner from './AnnouncementBanner'
 
 function CheckInMain() {
   const [activeSession, setActiveSession] = useState(null)
@@ -141,6 +142,9 @@ function CheckInMain() {
   // Hauptansicht mit aktiver Session
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
+      {/* Announcement Banner */}
+      <AnnouncementBanner />
+
       {/* Feedback Banner */}
       {feedback && (
         <div className={`fixed top-0 left-0 right-0 z-50 p-4 text-center text-white text-lg font-semibold
@@ -207,6 +211,28 @@ function CheckInMain() {
             attendees={attendees} 
             sessionInfo={activeSession}
           />
+        </div>
+
+        {/* QR-Code für mobile Check-in */}
+        <div className="card mt-4">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <div className="text-center">
+              <div className="border rounded-lg overflow-hidden bg-white p-2 inline-block">
+                <img
+                  src={`/api/sessions/${activeSession.id}/qr?t=${Date.now()}`}
+                  alt="QR-Code zum Check-in"
+                  className="w-32 h-32 object-contain"
+                />
+              </div>
+            </div>
+            <div className="text-center md:text-left">
+              <h3 className="font-semibold text-gray-800">Mobile Check-in</h3>
+              <p className="text-sm text-gray-600">
+                Scanne den QR-Code mit deinem Smartphone<br />
+                für einen schnellen Check-in
+              </p>
+            </div>
+          </div>
         </div>
       </main>
 
